@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    container_name: "postgres"
+    environment:
+      - POSTGRES_USER=compose-postgres
+      - POSTGRES_PASSWORD=compose-postgres
+
+  web:
+    build: .
+    links:
+      - postgres
+    container_name: courier-tracking
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/compose-postgres
+      - SPRING_DATASOURCE_USERNAME=compose-postgres
+      - SPRING_DATASOURCE_PASSWORD=compose-postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - LOG_LEVEL=DEBUG
+      - SPRING_PROFILES_ACTIVE=prod,actuator
+      - MANAGEMENT_ENDPOINT_BEANS_ENABLED=true
+      - MANAGEMENT_ENDPOINT_WEB_EXPOSURE_INCLUDE=beans
+    depends_on:
+      - postgres
